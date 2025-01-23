@@ -1,6 +1,7 @@
 # How was this library created?
 
 -   used `didc` to generate the rust bindings from the evm rpc canister did file
+  - `didc bind --target rs evm_rpc.did > interface.rs`
 -   added `call_with_payment128` to functions that expect cycles
 -   derive `Debug` and `Clone` trait for types for convenience
 
@@ -18,7 +19,7 @@
         }
       },
       "specified_id": "7hfb6-caaaa-aaaar-qadga-cai",
-      "init_arg": "(record { nodesInSubnet = 28 })"
+      "init_arg": "(record { logFilter = opt variant { HideAll }})"
     }
     ```
 -   if you deploy your own evm rpc canister, you can use the `EvmRpcCanister` struct to initiate the canister with your own canister id

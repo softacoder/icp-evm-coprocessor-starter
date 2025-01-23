@@ -165,7 +165,12 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     // on the transaction with chain key ecdsa and sending it to the evm via the
     // evm rpc canister
     submit_result(result.to_string(), new_job_event.job_id).await;
+    // `read_result` demonstrates how to make a `eth_call` via the evm rpc canister
     println!("Successfully ran job #{:?}", &new_job_event.job_id);
+        println!(
+        "Result: {}",
+        read_result(new_job_event.job_id.to_string(),).await
+    );
 }
 ```
 
@@ -175,7 +180,7 @@ All coprocessing logic resides in `canisters/chain_fusion/src/job.rs`. Developer
 
 ### Interacting with the EVM Smart Contract
 
-If you want to check that the `chain_fusion` canister really processed the events, you can either look at the logs output by running `./deploy.sh` – keep an eye open for the `Successfully ran job` message – or you can call the EVM contract to get the results of the jobs. To do this, run:
+If you want to check that the `chain_fusion` canister really processed the events, you can either look at the logs output by running `./deploy.sh` – keep an eye open for the `Successfully ran job` and `Result` messages – or you can call the EVM contract to get the results of the jobs. To do this, run:
 
 ```sh
 cast call 0x5fbdb2315678afecb367f032d93f642f64180aa3 "getResult(uint)(string)" <job_id>
@@ -227,8 +232,6 @@ To send transactions to the EVM, this project uses the [`ic-evm-utils`](https://
 #### Key Functions:
 
 -   **sign_eip1559_transaction**: This function signs a EIP-1559 transaction.
-
--   **eth_call**: This function sends a call to an arbitrary EVM smart contract to read data from it. It constructs a JSON-RPC call to the EVM RPC canister, which then forwards the call to the EVM smart contract.
 
 -   **erc20_balance_of**: The `erc20_balance_of` function demonstrates how to construct and send a call to an ERC20 contract to query the balance of a specific address. It uses the `eth_call` function to send the call and parse the response. You can refer to the `erc20_balance_of` function in the `eth_call.rs` module to understand how to implement similar read operations for other types of EVM smart contracts.
 

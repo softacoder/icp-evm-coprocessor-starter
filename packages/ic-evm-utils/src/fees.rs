@@ -47,7 +47,7 @@ pub async fn fee_history(
     {
         Ok((res,)) => match res {
             MultiFeeHistoryResult::Consistent(fee_history) => match fee_history {
-                FeeHistoryResult::Ok(fee_history) => fee_history.unwrap(),
+                FeeHistoryResult::Ok(fee_history) => fee_history,
                 FeeHistoryResult::Err(e) => {
                     ic_cdk::trap(format!("Error: {:?}", e).as_str());
                 }

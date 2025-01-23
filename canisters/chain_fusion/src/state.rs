@@ -14,6 +14,8 @@ thread_local! {
 #[derive(Debug, Clone)]
 pub struct State {
     pub rpc_services: RpcServices,
+    // this is needed when using the evm rpc providers `request` method
+    #[allow(dead_code)]
     pub rpc_service: RpcService,
     pub get_logs_addresses: Vec<String>,
     pub get_logs_topics: Option<Vec<Vec<String>>>,

@@ -1,4 +1,5 @@
 mod calculate_result;
+mod read_result;
 mod submit_result;
 
 use std::fmt;
@@ -6,6 +7,7 @@ use std::fmt;
 use ethers_core::types::U256;
 use evm_rpc_canister_types::LogEntry;
 use ic_cdk::println;
+use read_result::read_result;
 use submit_result::submit_result;
 
 use crate::{
@@ -26,6 +28,11 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     // evm rpc canister
     submit_result(result.to_string(), new_job_event.job_id).await;
     println!("Successfully ran job #{:?}", &new_job_event.job_id);
+    // `read_result` demonstrates how to make a `eth_call` via the evm rpc canister
+    println!(
+        "Result: {}",
+        read_result(new_job_event.job_id.to_string(),).await
+    );
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]

@@ -957,7 +957,6 @@ version = "0.1.0"
 dependencies = [
  "alloy",
  "candid",
- "ethers-core",
  "getrandom",
  "ic-canisters-http-types",
  "ic-cdk 0.14.0",

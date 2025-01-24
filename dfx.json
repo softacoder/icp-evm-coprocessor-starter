@@ -2,6 +2,7 @@
   "canisters": {
     "chain_fusion": {
       "candid": "canisters/chain_fusion/chain_fusion.did",
+      "init_arg_file": "initArgument.did",
       "package": "chain_fusion",
       "type": "rust",
       "dependencies": ["evm_rpc"],

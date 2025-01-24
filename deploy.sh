@@ -13,7 +13,7 @@ else
 fi
 
 # start anvil with slots in an epoch send to 1 for faster finalised blocks
-anvil --slots-in-an-epoch 1 &
+anvil --silent --slots-in-an-epoch 1 &
 dfx stop
 # Find process IDs listening on port 4943 (dfx)
 dfx=$(lsof -t -i:4943)
@@ -31,36 +31,9 @@ dfx deploy evm_rpc
 cargo build --release --target wasm32-unknown-unknown --package chain_fusion
 dfx canister create --with-cycles 10_000_000_000_000 chain_fusion
 # because the local smart contract deployment is deterministic, we can hardcode the 
-# the `get_logs_address` here. in our case we are listening for NewJob events,
+# the `get_logs_address` in the initArgument.didd`. in our case we are listening for NewJob events,
 # you can read more about event signatures [here](https://docs.alchemy.com/docs/deep-dive-into-eth_getlogs#what-are-event-signatures)
-dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion.wasm chain_fusion --argument '(
-  record {
-    ecdsa_key_id = record {
-      name = "dfx_test_key";
-      curve = variant { secp256k1 };
-    };
-    get_logs_topics = opt vec {
-      vec {
-        "0x031ada964b8e520743eb9508d0ace62654b126430b7e5a92b42e78eebb61602e";
-      };
-    };
-    last_scraped_block_number = 0: nat;
-    rpc_services = variant {
-      Custom = record {
-        chainId = 31_337 : nat64;
-        services = vec { record { url = "http://localhost:8545"; headers = null } };
-      }
-    };
-    rpc_service = variant {
-      Custom = record {
-        url = "http://localhost:8545";
-        headers = null;
-      }
-    };
-    get_logs_addresses = vec { "0x5FbDB2315678afecb367f032d93F642f64180aa3" };
-    block_tag = variant { Latest = null };
-  },
-)'
+dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion.wasm chain_fusion 
 # sleep for 3 seconds to allow the evm address to be generated
 sleep 3
 # save the chain_fusion canisters evm address

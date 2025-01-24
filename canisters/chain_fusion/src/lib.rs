@@ -8,6 +8,7 @@ mod state;
 
 use std::time::Duration;
 
+use alloy::{network::TxSigner, signers::icp::IcpSigner, sol};
 use logs::scrape_eth_logs;
 
 use lifecycle::InitArg;
@@ -15,25 +16,27 @@ use state::{read_state, State};
 
 use crate::state::{initialize_state, mutate_state};
 
-pub const SCRAPING_LOGS_INTERVAL: Duration = Duration::from_secs(3 * 60);
+pub const SCRAPING_LOGS_INTERVAL: Duration = Duration::from_secs(60);
+
+sol!(
+    #[sol(rpc)]
+    "../../contracts/Coprocessor.sol"
+);
 
 fn setup_timers() {
-    let key_id = read_state(State::key_id);
-    // as timers are synchronous, we need to spawn a new async task to get the public key
+    let ecdsa_key_name = read_state(State::key_id).name.clone();
     ic_cdk_timers::set_timer(Duration::ZERO, || {
-        ic_cdk::spawn(async {
-            let public_key =
-                ic_evm_utils::evm_signer::get_canister_public_key(key_id, None, vec![]).await;
-            let evm_address = ic_evm_utils::evm_signer::pubkey_bytes_to_address(&public_key);
+        ic_cdk::spawn(async move {
+            let signer = IcpSigner::new(vec![], &ecdsa_key_name, None).await.unwrap();
+            let address = signer.address();
             mutate_state(|s| {
-                s.ecdsa_pub_key = Some(public_key);
-                s.evm_address = Some(evm_address);
+                s.signer = Some(signer);
+                s.canister_evm_address = Some(address);
             });
         })
     });
     // // Start scraping logs almost immediately after the install, then repeat with the interval.
     ic_cdk_timers::set_timer(Duration::from_secs(10), || ic_cdk::spawn(scrape_eth_logs()));
-    ic_cdk_timers::set_timer_interval(SCRAPING_LOGS_INTERVAL, || ic_cdk::spawn(scrape_eth_logs()));
 }
 
 #[ic_cdk::init]
@@ -44,7 +47,9 @@ fn init(arg: InitArg) {
 
 #[ic_cdk::query]
 fn get_evm_address() -> String {
-    read_state(|s| s.evm_address.clone()).expect("evm address should be initialized")
+    read_state(|s| s.canister_evm_address)
+        .expect("evm address should be initialized")
+        .to_string()
 }
 
 // uncomment this if you need to serve stored assets from `storage.rs` via http requests

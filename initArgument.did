@@ -4,27 +4,15 @@
       name = "dfx_test_key";
       curve = variant { secp256k1 };
     };
-    get_logs_topics = opt vec {
-      vec {
-        "0x031ada964b8e520743eb9508d0ace62654b126430b7e5a92b42e78eebb61602e";
-      };
-    };
-    last_scraped_block_number = 0 : nat;
-    rpc_services = variant {
-      Custom = record {
-        chainId = 31_337 : nat64;
-        services = vec {
-          record { url = "http://localhost:8545"; headers = null };
-        };
-      }
-    };
     rpc_service = variant {
       Custom = record {
         url = "http://localhost:8545";
         headers = null;
       }
     };
-    get_logs_addresses = vec { "0x5FbDB2315678afecb367f032d93F642f64180aa3" };
-    block_tag = variant { Latest = null };
+    filter_addresses = vec { "0x5FbDB2315678afecb367f032d93F642f64180aa3" };
+    chain_id = 31337 : nat64;
+    coprocessor_evm_address = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+    filter_events = vec { "NewJob(uint256)" };
   }
 )

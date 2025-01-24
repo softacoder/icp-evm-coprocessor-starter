@@ -58,6 +58,22 @@ Moreover, canister smart contracts have numerous capabilities that can extend sm
 -   ~1-2 second [finality](https://internetcomputer.org/how-it-works/consensus/).
 -   [Multi-block transactions](https://internetcomputer.org/capabilities/multi-block-transactions/).
 
+## Now with `ic-alloy`
+
+The version that talks to the `evm rpc canister` directly can be found in the `evm-rpc-canister` branch. This version uses the `ic-alloy` library to interact with the EVM RPC canister. The `ic-alloy` library is a Rust library that provides a convenient way to interact with the EVMs from canister deployed on the Internet Computer
+
+### Differences from Prior Implementations
+
+-   No retry logic when `max-response-size` is exceeded.
+    -   This means you have less control over the logic to fetch logs.
+        -   For example, when 500 blocks have been produced since you last fetched logs, you will fetch logs for all those 500 blocks. If they don't fit into the `max-response-size`, you will encounter a problem. Even when you set `max-response-size` to the maximum value (2MB), the response might still exceed this limit.
+-   Logs/events are not fetched for a range, and you can't provide the block number from which you'd like to start fetching.
+    -   You only fetch from the latest block since deployment. This means you can't fetch logs/events from before the canister was deployed.
+-   `ic-alloy` doesn't use the Candid convenience methods provided by the `evm-rpc-canister`, but only the `request` method. This means the requests are only forwarded to a single RPC provider, and you miss out on the 3-out-of-4 consensus that the `evm-rpc-canister` provides with its convenience methods.
+-   Topics are now passed in their string representation when initializing the canister, e.g., `"Transfer(address,address,uint256)"`.
+-   `coprocess_evm_address` and `filter_addresses` are now separated in the state and must be set separately.
+-   You need to provide a `chain_id` explicitly when initializing the canister.
+
 ## Getting Started
 
 To deploy the project locally, run `./deploy.sh` from the project root. This script will:
@@ -194,7 +210,7 @@ If you want to create more jobs, simply run:
 cast send 0x5fbdb2315678afecb367f032d93f642f64180aa3 "newJob()" --private-key=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --value 0.01ether
 ```
 
-Note that the Chain Fusion Canister only scrapes logs every 3 minutes, so you may need to wait a few minutes before seeing the new job processed.
+Note that the Chain Fusion Canister only scrapes logs every minute, so you may need to wait a bit before seeing the new job processed.
 
 ### Leveraging `storage.rs` for Stable Memory
 

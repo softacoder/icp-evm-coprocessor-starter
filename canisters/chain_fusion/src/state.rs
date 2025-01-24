@@ -1,9 +1,10 @@
-use evm_rpc_canister_types::{BlockTag, LogEntry, RpcService, RpcServices};
+use alloy::primitives::{Address, FixedBytes};
+use alloy::rpc::types::Log;
+use alloy::signers::icp::IcpSigner;
+use alloy::transports::icp::RpcService;
 
-use candid::Nat;
-use ethers_core::types::U256;
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, HashSet};
 
 use std::cell::RefCell;
 
@@ -13,33 +14,27 @@ thread_local! {
 
 #[derive(Debug, Clone)]
 pub struct State {
-    pub rpc_services: RpcServices,
-    // this is needed when using the evm rpc providers `request` method
-    #[allow(dead_code)]
     pub rpc_service: RpcService,
-    pub get_logs_addresses: Vec<String>,
-    pub get_logs_topics: Option<Vec<Vec<String>>>,
-    pub last_scraped_block_number: Nat,
-    pub last_observed_block_number: Option<Nat>,
-    pub logs_to_process: BTreeMap<LogSource, LogEntry>,
-    pub processed_logs: BTreeMap<LogSource, LogEntry>,
-    pub skipped_blocks: BTreeSet<Nat>,
+    pub chain_id: u64,
+    pub coprocessor_evm_address: Address,
+    pub filter_addresses: Vec<Address>,
+    pub filter_events: Vec<String>,
+    pub logs_to_process: BTreeMap<LogSource, Log>,
+    pub processed_logs: BTreeMap<LogSource, Log>,
     pub active_tasks: HashSet<TaskType>,
-    pub ecdsa_pub_key: Option<Vec<u8>>,
+    pub signer: Option<IcpSigner>,
     pub ecdsa_key_id: EcdsaKeyId,
-    pub evm_address: Option<String>,
-    pub nonce: U256,
-    pub block_tag: BlockTag,
+    pub canister_evm_address: Option<Address>,
+    pub nonce: Option<u64>,
 }
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum InvalidStateError {
     InvalidEthereumContractAddress(String),
-    InvalidTopic(String),
 }
 
 impl State {
-    pub fn record_log_to_process(&mut self, log_entry: &LogEntry) {
+    pub fn record_log_to_process(&mut self, log_entry: &Log) {
         let event_source = log_entry.source();
         assert!(
             !self.logs_to_process.contains_key(&event_source),
@@ -63,32 +58,20 @@ impl State {
         );
     }
 
-    pub fn record_skipped_block(&mut self, block_number: Nat) {
-        assert!(
-            self.skipped_blocks.insert(block_number.clone()),
-            "BUG: block {} was already skipped",
-            block_number
-        );
-    }
-
     pub fn has_logs_to_process(&self) -> bool {
         !self.logs_to_process.is_empty()
-    }
-
-    pub fn rpc_services(&self) -> RpcServices {
-        self.rpc_services.clone()
     }
 
     pub fn key_id(&self) -> EcdsaKeyId {
         self.ecdsa_key_id.clone()
     }
 
-    pub fn get_logs_addresses(&self) -> Vec<String> {
-        self.get_logs_addresses.clone()
+    pub fn get_filter_addresses(&self) -> Vec<Address> {
+        self.filter_addresses.clone()
     }
 
-    pub fn nonce(&self) -> U256 {
-        self.nonce
+    pub fn get_filter_events(&self) -> Vec<String> {
+        self.filter_events.clone()
     }
 }
 
@@ -96,16 +79,14 @@ trait IntoLogSource {
     fn source(&self) -> LogSource;
 }
 
-impl IntoLogSource for LogEntry {
+impl IntoLogSource for Log {
     fn source(&self) -> LogSource {
         LogSource {
             transaction_hash: self
-                .transactionHash
-                .clone()
+                .transaction_hash
                 .expect("for finalized blocks logs are not pending"),
             log_index: self
-                .logIndex
-                .clone()
+                .log_index
                 .expect("for finalized blocks logs are not pending"),
         }
     }
@@ -115,8 +96,8 @@ impl IntoLogSource for LogEntry {
 /// entry index.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct LogSource {
-    pub transaction_hash: String,
-    pub log_index: Nat,
+    pub transaction_hash: FixedBytes<32>,
+    pub log_index: u64,
 }
 
 pub fn read_state<R>(f: impl FnOnce(&State) -> R) -> R {

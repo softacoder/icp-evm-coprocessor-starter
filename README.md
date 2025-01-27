@@ -7,6 +7,8 @@
 -   [Overview](#overview)
     -   [What is a Coprocessor?](#what-is-a-coprocessor)
     -   [Why Use ICP as a Coprocessor for Ethereum?](#why-use-icp-as-a-coprocessor-for-ethereum)
+-   [Now with `ic-alloy`](#now-with-ic-alloy)
+    -   [Differences from Prior Implementations](#differences-from-prior-implementations)
 -   [Getting Started](#getting-started)
     -   [In the Cloud](#in-the-cloud)
     -   [Locally](#locally)
@@ -160,33 +162,30 @@ function callback(string calldata _result, uint256 _job_id) public {
 }
 ```
 
-For local deployment, see the `deploy.sh` script and `script/Coprocessor.s.sol`.
+For local deployment, see the `deploy.sh` script and `script/Coprocessor.s.sol`. The arguments to initalize the canister can be found in `initArgument.did`.
 
 ### Chain Fusion Canister
 
-The `chain_fusion` canister listens to `NewJob` events by periodically calling the `eth_getLogs` RPC method via the [EVM RPC canister](https://github.com/internet-computer-protocol/evm-rpc-canister). Upon receiving an event, it processes the job and sends the results back to the EVM smart contract via the EVM RPC canister, signing the transaction with threshold ECDSA.
+The `chain_fusion` canister listens to `NewJob` events by periodically calling the `eth_getLogs` RPC method via the [EVM RPC canister](https://github.com/internet-computer-protocol/evm-rpc-canister). Upon receiving an event, it processes the job and sends the results back to the EVM smart contract via the EVM RPC canister, signing the transaction with threshold ECDSA. The calls to the `EVM RPC canister` are abstracted away from the developer by the `ic-alloy` library.
 
 The Job processing logic is in `canisters/chain_fusion/src/job.rs`:
 
 ```rust
-pub async fn job(event_source: LogSource, event: LogEntry) {
-    mutate_state(|s| s.record_processed_log(event_source.clone()));
+pub async fn job(log_source: LogSource, log: Log) {
+    mutate_state(|s| s.record_processed_log(log_source.clone()));
     // because we deploy the canister with topics only matching
     // NewJob events we can safely assume that the event is a NewJob.
-    let new_job_event = NewJobEvent::from(event);
+    let new_job: Log<Coprocessor::NewJob> = log.log_decode().unwrap();
+    let Coprocessor::NewJob { job_id } = new_job.data();
     // this calculation would likely exceed an ethereum blocks gas limit
     // but can easily be calculated on the IC
     let result = fibonacci(20);
     // we write the result back to the evm smart contract, creating a signature
     // on the transaction with chain key ecdsa and sending it to the evm via the
     // evm rpc canister
-    submit_result(result.to_string(), new_job_event.job_id).await;
+    submit_result(result.to_string(), *job_id).await;
     // `read_result` demonstrates how to make a `eth_call` via the evm rpc canister
-    println!("Successfully ran job #{:?}", &new_job_event.job_id);
-        println!(
-        "Result: {}",
-        read_result(new_job_event.job_id.to_string(),).await
-    );
+    read_result(*job_id).await;
 }
 ```
 
@@ -243,7 +242,9 @@ By enabling this code, you can serve web content directly from the canister, lev
 
 ### Reading from and writing to EVM Smart Contracts
 
-To send transactions to the EVM, this project uses the [`ic-evm-utils`](https://crates.io/crates/ic-evm-utils) crate. This crate provides functionality for constructing, signing and sending transactions to EVM networks, leveraging the [`evm-rpc-canister-types`](https://crates.io/crates/evm-rpc-canister-types) crate for data types and constants.
+To send transactions to the EVM, listening for events and calling contracts, this project uses the [`ic-alloy`](https://ic-alloy.dev/) crate. This crate provides functionality for constructing, signing and sending transactions to EVM networks, leveraging the well-known `alloy` library as a base. You can see examples of how it's used in `canisters/chain_fusion/src/logs.rs`, `canisters/chain_fusion/src/job/submit_result.rs` and `canisters/chain_fusion/src/job/read_result.rs`.
+
+If you don't want to use `ic-alloy` but directly interact with the `EVM RPC canister`, consider using the [`ic-evm-utils`](https://crates.io/crates/ic-evm-utils) crate. This crate provides functionality for constructing, signing and sending transactions to EVM networks, leveraging the [`evm-rpc-canister-types`](https://crates.io/crates/evm-rpc-canister-types) crate for data types and constants.
 
 #### Key Functions:
 

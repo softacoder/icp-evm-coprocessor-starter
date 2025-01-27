@@ -9,7 +9,6 @@ use crate::{
 use alloy::rpc::types::Filter;
 use alloy::{eips::BlockNumberOrTag, providers::Provider};
 use alloy::{providers::ProviderBuilder, rpc::types::Log, transports::icp::IcpConfig};
-use ic_cdk::println;
 
 async fn process_logs() {
     let _guard = match TimerGuard::new(TaskType::ProcessLogs) {
@@ -18,7 +17,6 @@ async fn process_logs() {
     };
 
     let logs_to_process = read_state(|s| (s.logs_to_process.clone()));
-    println!("logs_to_process: {:?}", logs_to_process);
 
     for (event_source, event) in logs_to_process {
         job(event_source, event).await

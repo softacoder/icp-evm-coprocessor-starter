@@ -3,10 +3,10 @@ pragma solidity 0.8.20;
 
 contract Coprocessor {
     uint job_id = 0;
-    address payable private immutable coprocessor;
+    address payable private coprocessor;
 
-    constructor(address _coprocessor) {
-        coprocessor = payable(_coprocessor);
+    constructor() {
+        coprocessor = payable(msg.sender);
     }
 
     mapping(uint => string) public jobs;
@@ -40,5 +40,13 @@ contract Coprocessor {
             "Only the coprocessor can call this function"
         );
         jobs[_job_id] = _result;
+    }
+
+    function updateCoprocessor(address _coprocessor) public {
+        require(
+            msg.sender == coprocessor,
+            "Only the coprocessor can call this function"
+        );
+        coprocessor = payable(_coprocessor);
     }
 }

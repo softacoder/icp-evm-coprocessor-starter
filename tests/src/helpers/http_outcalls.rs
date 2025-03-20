@@ -5,8 +5,8 @@ use pocket_ic::{
     },
     nonblocking::PocketIc,
 };
-use std::sync::Weak;
-use tokio::sync::Mutex;
+use std::{sync::Weak, time::Duration};
+use tokio::{sync::Mutex, time::sleep};
 
 /// This function run a loop that fetches pending HTTP outcalls from pocket-ic
 /// and handles them either by forward them to anvil or by replaying responses
@@ -21,6 +21,9 @@ pub async fn handle_http_outcalls(
             let pic = pic.lock().await;
             pic.get_canister_http().await
         };
+
+        sleep(Duration::from_millis(50)).await;
+
         for request in requests {
             let url = request.url.clone();
             if rpc_nodes.contains(&url) {

@@ -1,7 +1,8 @@
 use std::path::PathBuf;
 
 use candid::{decode_one, encode_one, CandidType, Principal};
-use pocket_ic::{management_canister::CanisterId, nonblocking::PocketIc, WasmResult};
+use ic_cdk::api::call::reply;
+use pocket_ic::{management_canister::CanisterId, nonblocking::PocketIc, RejectResponse};
 use serde::Deserialize;
 
 use crate::WORKSPACE_ROOT;
@@ -61,10 +62,9 @@ impl Canister {
                 path
             }
         };
-        if !path.exists() {
-            if Some("wasm") == path.extension().map(|x| x.to_str().unwrap()) {
-                path.set_extension("wasm.gz");
-            }
+
+        if !path.exists() && Some("wasm") == path.extension().map(|x| x.to_str().unwrap()) {
+            path.set_extension("wasm.gz");
         }
 
         std::fs::read(path.as_path())
@@ -89,13 +89,13 @@ pub async fn update<T>(
 where
     T: for<'a> Deserialize<'a> + CandidType,
 {
-    let result = pic
+    let result: Result<Vec<u8>, RejectResponse> = pic
         .update_call(canister, caller, method, encode_one(arg).unwrap())
-        .await
-        .unwrap();
+        .await;
+
     match result {
-        WasmResult::Reply(reply) => Ok(decode_one(&reply).unwrap()),
-        WasmResult::Reject(error) => Err(error),
+        Ok(reply) => decode_one(&reply).unwrap(),
+        Err(rr) => Err(rr.reject_message),
     }
 }
 
@@ -111,10 +111,10 @@ where
 {
     let result = pic
         .query_call(canister, caller, method, encode_one(arg).unwrap())
-        .await
-        .unwrap();
+        .await;
+
     match result {
-        WasmResult::Reply(reply) => Ok(decode_one(&reply).unwrap()),
-        WasmResult::Reject(error) => Err(error),
+        Ok(reply) => Ok(decode_one(&reply).unwrap()),
+        Err(rr) => Err(rr.reject_message),
     }
 }

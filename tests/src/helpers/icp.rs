@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use candid::{decode_one, encode_one, CandidType, Principal};
-use ic_cdk::api::call::reply;
 use pocket_ic::{management_canister::CanisterId, nonblocking::PocketIc, RejectResponse};
 use serde::Deserialize;
 

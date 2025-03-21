@@ -1,2 +1,2 @@
-mod chain_fusion;
 mod evm_rpc;
+mod chain_fusion;

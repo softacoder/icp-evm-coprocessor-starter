@@ -1,12 +1,25 @@
 use std::str::FromStr;
 
-use crate::TestEnv;
+use crate::{chain_fusion::ChainFusionCanister, TestEnv};
 use alloy::primitives::{utils::parse_ether, Address, U256};
 
 #[tokio::test]
 async fn test_coprocessor_job() {
     let test = TestEnv::new().await;
-    let canister_evm_addr = Address::from_str(&test.get_evm_address().await.unwrap()).unwrap();
+    let chain_fusion = ChainFusionCanister {
+        canister_id: test.chain_fusion,
+        provider: test.provider(),
+    };
+
+    let canister_evm_addr = Address::from_str(
+        &chain_fusion
+            .get_evm_address()
+            .call()
+            .await
+            .unwrap()
+            .unwrap(),
+    )
+    .unwrap();
 
     let user_balance_before = test.evm.get_balance(test.evm.user).await;
     let canister_balance_before = test.evm.get_balance(canister_evm_addr).await;

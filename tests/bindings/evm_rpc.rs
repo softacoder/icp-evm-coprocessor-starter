@@ -444,3 +444,4 @@ impl Service {
     arg0: Vec<(ProviderId,Option<String>,)>,
   ) -> Result<()> { ic_cdk::call(self.0, "updateApiKeys", (arg0,)).await }
 }
+(InstallArgs)

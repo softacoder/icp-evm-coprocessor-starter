@@ -26,3 +26,4 @@ ic-icrc1-ledger = { git = "https://github.com/dfinity/ic.git", rev = "efa77e7d1e
 pocket-ic = "7.0.0"
 cargo_metadata = "0.19.1"
 ic-agent = "0.39.3"
+thiserror = "2.0.12"

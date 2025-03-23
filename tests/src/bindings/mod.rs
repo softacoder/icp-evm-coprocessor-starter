@@ -15,14 +15,12 @@ pub mod evm_rpc;
 // generated from: canisters/chain_fusion/chain_fusion.did
 pub mod chain_fusion;
 
-
 pub mod evm {
     use alloy::sol;
-    
+
     sol!(
         #[sol(rpc)]
         Coprocessor,
-        "./out/Coprocessor.sol/Coprocessor.json",
+        "../out/Coprocessor.sol/Coprocessor.json",
     );
-    
 }

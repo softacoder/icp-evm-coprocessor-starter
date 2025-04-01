@@ -3182,7 +3182,7 @@ dependencies = [
 
 [[package]]
 name = "ic-test"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "alloy 0.12.5",
  "alloy-node-bindings",
@@ -3215,22 +3215,6 @@ dependencies = [
  "tokio",
  "toml_edit 0.22.24",
  "wf-cdk-bindgen",
-]
-
-[[package]]
-name = "ic-tests"
-version = "0.1.0"
-dependencies = [
- "alloy 0.12.5",
- "candid",
- "cargo_metadata",
- "ic-cdk 0.17.1",
- "ic-test",
- "lazy_static",
- "pocket-ic",
- "serde",
- "serde_bytes",
- "tokio",
 ]
 
 [[package]]
@@ -5802,6 +5786,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "tests-tmp"
+version = "0.1.0"
+dependencies = [
+ "alloy 0.12.5",
+ "candid",
+ "cargo_metadata",
+ "ic-cdk 0.17.1",
+ "ic-test",
+ "lazy_static",
+ "pocket-ic",
+ "serde",
+ "serde_bytes",
+ "tokio",
+]
+
+[[package]]
 name = "thiserror"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6492,9 +6492,9 @@ dependencies = [
 
 [[package]]
 name = "wf-cdk-bindgen"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25f12f59b4c6521d63b96e0fb765f94624fa734a327e7318821540823ba7a67d"
+checksum = "00db348325d0f9940f55663366c64bf56c4aca9725ae5d50abef88545684449b"
 dependencies = [
  "candid",
  "candid_parser",

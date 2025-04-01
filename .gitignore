@@ -37,4 +37,4 @@ out/
 docs/
 
 # Ignore pocket-ic binary
-tests/pocket-ic
+tests_tmp/pocket-ic

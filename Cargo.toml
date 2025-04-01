@@ -3,7 +3,7 @@ members = [
   "canisters/chain_fusion",
   "packages/evm-rpc-canister-types",
   "packages/ic-evm-utils",
-  "tests",
+  "tests_tmp",
 ]
 resolver = "2"
 

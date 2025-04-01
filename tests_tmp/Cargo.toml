@@ -1,5 +1,5 @@
 [package]
-name = "tests-tmp"
+name = "tests_tmp"
 version = "0.1.0"
 edition = "2021"
 

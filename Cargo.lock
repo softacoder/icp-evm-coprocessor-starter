@@ -5786,7 +5786,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tests-tmp"
+name = "tests_tmp"
 version = "0.1.0"
 dependencies = [
  "alloy 0.12.5",

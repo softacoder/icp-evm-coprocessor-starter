@@ -5,7 +5,7 @@ use alloy::{
     primitives::{utils::parse_ether, Address, Uint, U256},
 };
 use candid::Principal;
-use ic_test::{EvmUser, IcTest, IcUser};
+use ic_test::{EvmUser, IcpTest, IcpUser};
 
 use crate::bindings::{
     chain_fusion::{self, ChainFusionCanister},
@@ -45,16 +45,16 @@ pub fn wasm_gz(name: &str) -> Vec<u8> {
 }
 
 struct Env {
-    test: IcTest,
+    test: IcpTest,
     evm_user: EvmUser,
     chain_fusion: ChainFusionCanister,
     evm_rpc: EvmRpcCanister,
     coprocessor: CoprocessorInstance<(), EvmUser>,
 }
 
-async fn setup(test: IcTest) -> Env {
+async fn setup(test: IcpTest) -> Env {
     let evm_user = test.evm.test_user(0);
-    let icp_user = test.ic.test_user(0);
+    let icp_user = test.icp.test_user(0);
 
     let coprocessor = Coprocessor::deploy(evm_user.clone()).await.unwrap();
 
@@ -136,7 +136,7 @@ async fn test_coprocessor_job() {
         chain_fusion: _,
         evm_rpc: _,
         coprocessor,
-    } = setup(IcTest::new().await).await;
+    } = setup(IcpTest::new().await).await;
 
     let user_balance_before = test.evm.get_balance(evm_user.address).await;
 
@@ -159,7 +159,7 @@ async fn test_coprocessor_job() {
     assert!(user_balance_before - payment >= user_balance_after);
 
     for _ in 0..100 {
-        test.ic.tick().await;
+        test.icp.tick().await;
     }
 
     let result = coprocessor.getResult(Uint::from(0)).call().await.unwrap();

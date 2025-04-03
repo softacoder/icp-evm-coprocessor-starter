@@ -3182,7 +3182,8 @@ dependencies = [
 
 [[package]]
 name = "ic-test"
-version = "0.1.1"
+version = "0.1.0"
+source = "git+https://github.com/wasm-forge/ic-test#474d018c9792ff30ea1e8752db1e3cd36e50caab"
 dependencies = [
  "alloy 0.12.5",
  "alloy-node-bindings",
@@ -5786,15 +5787,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "tests_tmp"
+name = "tests"
 version = "0.1.0"
 dependencies = [
  "alloy 0.12.5",
  "candid",
  "cargo_metadata",
+ "convert_case 0.8.0",
  "ic-cdk 0.17.1",
  "ic-test",
- "lazy_static",
  "pocket-ic",
  "serde",
  "serde_bytes",

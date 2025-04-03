@@ -13,43 +13,12 @@ use crate::bindings::{
     evm_rpc::{self, EvmRpcCanister},
 };
 
-use lazy_static::lazy_static;
-
-lazy_static! {
-    static ref WORKSPACE_ROOT: PathBuf = cargo_metadata::MetadataCommand::new()
-        .no_deps()
-        .exec()
-        .expect("Failed to get workspace root")
-        .workspace_root
-        .into();
-}
-
-pub fn wasm(name: &str) -> Vec<u8> {
-    let mut path = WORKSPACE_ROOT.clone();
-    path.push(".dfx");
-    path.push("local");
-    path.push("canisters");
-    path.push(name);
-    path.push(format!("{}.wasm", name));
-    std::fs::read(path.as_path()).unwrap_or_else(|_| panic!("wasm binary not found: {:?}", path))
-}
-
-pub fn wasm_gz(name: &str) -> Vec<u8> {
-    let mut path = WORKSPACE_ROOT.clone();
-    path.push(".dfx");
-    path.push("local");
-    path.push("canisters");
-    path.push(name);
-    path.push(format!("{}.wasm.gz", name));
-    std::fs::read(path.as_path()).unwrap_or_else(|_| panic!("wasm binary not found: {:?}", path))
-}
-
 struct Env {
     test: IcpTest,
-    evm_user: EvmUser,
-    chain_fusion: ChainFusionCanister,
     evm_rpc: EvmRpcCanister,
+    chain_fusion: ChainFusionCanister,
     coprocessor: CoprocessorInstance<(), EvmUser>,
+    evm_user: EvmUser,
 }
 
 async fn setup(test: IcpTest) -> Env {
@@ -68,8 +37,6 @@ async fn setup(test: IcpTest) -> Env {
             nodesInSubnet: None,
         },
     )
-    .with_wasm(wasm_gz("evm_rpc"))
-    .with_canister_id(Principal::from_text("7hfb6-caaaa-aaaar-qadga-cai").unwrap())
     .call()
     .await;
 
@@ -90,7 +57,6 @@ async fn setup(test: IcpTest) -> Env {
             filter_events: vec!["NewJob(uint256)".to_string()],
         },
     )
-    .with_wasm(wasm("chain_fusion"))
     .call()
     .await;
 
@@ -122,8 +88,8 @@ async fn setup(test: IcpTest) -> Env {
     Env {
         test,
         evm_user,
-        chain_fusion,
         evm_rpc,
+        chain_fusion,
         coprocessor,
     }
 }
@@ -133,8 +99,8 @@ async fn test_coprocessor_job() {
     let Env {
         test,
         evm_user,
-        chain_fusion: _,
-        evm_rpc: _,
+        evm_rpc,
+        chain_fusion,
         coprocessor,
     } = setup(IcpTest::new().await).await;
 

@@ -35,6 +35,3 @@ out/
 
 # Docs
 docs/
-
-# Ignore pocket-ic binary
-tests_tmp/pocket-ic

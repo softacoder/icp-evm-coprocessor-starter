@@ -2484,6 +2484,8 @@ dependencies = [
 [[package]]
 name = "evm-rpc-canister-types"
 version = "4.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2cabdc0dd89a09bb65d77fcdb8cc9af17407478e36f5a1260fdbe45ae0b0bd45"
 dependencies = [
  "candid",
  "candid_parser",
@@ -2496,9 +2498,7 @@ dependencies = [
 
 [[package]]
 name = "evm-rpc-canister-types"
-version = "4.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cabdc0dd89a09bb65d77fcdb8cc9af17407478e36f5a1260fdbe45ae0b0bd45"
+version = "5.0.1"
 dependencies = [
  "candid",
  "candid_parser",
@@ -3163,7 +3163,7 @@ version = "4.0.0"
 dependencies = [
  "candid",
  "ethers-core",
- "evm-rpc-canister-types 4.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "evm-rpc-canister-types 4.0.1",
  "ic-cdk 0.14.0",
  "num-traits",
  "serde",

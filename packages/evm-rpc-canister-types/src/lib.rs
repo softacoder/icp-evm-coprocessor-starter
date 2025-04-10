@@ -12,10 +12,23 @@ pub enum LogFilter {
 }
 
 #[derive(CandidType, Deserialize, Debug, Clone)]
+pub struct RegexSubstitution {
+    pub pattern: Regex,
+    pub replacement: String,
+}
+
+#[derive(CandidType, Deserialize, Debug, Clone)]
+pub struct OverrideProvider {
+    pub overrideUrl: Option<RegexSubstitution>,
+}
+
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct InstallArgs {
     pub logFilter: Option<LogFilter>,
     pub demo: Option<bool>,
     pub manageApiKeys: Option<Vec<Principal>>,
+    pub overrideProvider: Option<OverrideProvider>,
+    pub nodesInSubnet: Option<u32>,
 }
 
 #[derive(CandidType, Deserialize, Debug, Clone)]
@@ -372,14 +385,11 @@ pub enum MultiSendRawTransactionResult {
 
 #[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct Metrics {
-    pub cyclesWithdrawn: candid::Nat,
     pub responses: Vec<((String, String, String), u64)>,
-    pub errNoPermission: u64,
     pub inconsistentResponses: Vec<((String, String), u64)>,
     pub cyclesCharged: Vec<((String, String), candid::Nat)>,
     pub requests: Vec<((String, String), u64)>,
-    pub errHttpOutcall: Vec<((String, String), u64)>,
-    pub errHostNotAllowed: Vec<(String, u64)>,
+    pub errHttpOutcall: Vec<((String, String, RejectionCode), u64)>,
 }
 
 #[derive(CandidType, Deserialize, Debug, Clone)]
@@ -536,7 +546,7 @@ pub const CANISTER_ID: Principal =
 pub const EVM_RPC: EvmRpcCanister = EvmRpcCanister(CANISTER_ID);
 
 #[test]
-#[ignore = "existing candid mismatch"]
+// #[ignore = "existing candid mismatch"]
 fn test_candid_interface() {
     fn source_to_str(source: &candid_parser::utils::CandidSource) -> String {
         match source {
@@ -573,9 +583,12 @@ fn test_candid_interface() {
 
     // fetch public interface from github
     let client = reqwest::blocking::Client::new();
-    let new_interface = client.get("https://github.com/internet-computer-protocol/evm-rpc-canister/releases/latest/download/evm_rpc.did")
-    .send().unwrap()
-    .text().unwrap();
+    let new_interface = client
+        .get("https://github.com/dfinity/evm-rpc-canister/releases/latest/download/evm_rpc.did")
+        .send()
+        .unwrap()
+        .text()
+        .unwrap();
 
     // check the public interface against the actual one
     let old_interface =

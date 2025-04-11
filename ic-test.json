@@ -9,7 +9,7 @@
         "var_name": "evm_rpc",
         "service_name": "EvmRpcCanister",
         "candid": ".dfx/local/canisters/evm_rpc/constructor.did",
-        "wasm": ".dfx/local/canisters/evm_rpc/evm_rpc.wasm.gz",
+        "wasm": "./.dfx/local/canisters/evm_rpc/evm_rpc.wasm.gz",
         "specified_id": "7hfb6-caaaa-aaaar-qadga-cai"
       },
       "chain_fusion": {
@@ -17,7 +17,7 @@
         "var_name": "chain_fusion",
         "service_name": "ChainFusionCanister",
         "candid": ".dfx/local/canisters/chain_fusion/constructor.did",
-        "wasm": ".dfx/local/canisters/chain_fusion/chain_fusion.wasm",
+        "wasm": "./.dfx/local/canisters/chain_fusion/chain_fusion.wasm",
         "specified_id": "2222s-4iaaa-aaaaf-ax2uq-cai"
       }
     }

@@ -633,7 +633,7 @@ pub fn canister_id() -> Option<Principal> {
 
 pub fn wasm() -> Option<Vec<u8>> {
     let mut path = std::path::PathBuf::new();
-    path.push("../.dfx/local/canisters/evm_rpc/evm_rpc.wasm.gz");
+    path.push(".././.dfx/local/canisters/evm_rpc/evm_rpc.wasm.gz");
     let wasm = std::fs::read(path.as_path())
         .unwrap_or_else(|_| panic!("wasm binary not found: {:?}", path));
     Some(wasm)

@@ -28,4 +28,4 @@ type RpcService = variant {
   Chain : nat64;
   Provider : nat64;
 };
-service : (InitArg) -> { get_evm_address : () -> (text) query }
+service : (InitArg) -> { get_evm_address : () -> (opt text) query }

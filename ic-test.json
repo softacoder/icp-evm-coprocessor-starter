@@ -1,0 +1,38 @@
+{
+  "test_folder": "tests",
+  "icp_setup": {
+    "dfx_json": "dfx.json",
+    "skip_dfx_json": false,
+    "canisters": {
+      "evm_rpc": {
+        "name": "evm_rpc",
+        "var_name": "evm_rpc",
+        "service_name": "EvmRpcCanister",
+        "candid": ".dfx/local/canisters/evm_rpc/constructor.did",
+        "wasm": "./.dfx/local/canisters/evm_rpc/evm_rpc.wasm.gz",
+        "specified_id": "7hfb6-caaaa-aaaar-qadga-cai"
+      },
+      "chain_fusion": {
+        "name": "chain_fusion",
+        "var_name": "chain_fusion",
+        "service_name": "ChainFusionCanister",
+        "candid": ".dfx/local/canisters/chain_fusion/constructor.did",
+        "wasm": "./.dfx/local/canisters/chain_fusion/chain_fusion.wasm",
+        "specified_id": "2222s-4iaaa-aaaaf-ax2uq-cai"
+      }
+    }
+  },
+  "evm_setup": {
+    "foundry_toml": "foundry.toml",
+    "skip_foundry_toml": false,
+    "foundry_src": "contracts",
+    "foundry_out": "out",
+    "contracts": {
+      "Coprocessor": {
+        "name": "Coprocessor",
+        "var_name": "coprocessor",
+        "sol_json": "out/Coprocessor.sol/Coprocessor.json"
+      }
+    }
+  }
+}

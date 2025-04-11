@@ -258,6 +258,39 @@ If you don't want to use `ic-alloy` but directly interact with the `EVM RPC cani
 
 -   **contract_interaction**: The `contract_interaction` function demonstrates how to interact with arbitrary EVM smart contracts. It constructs a transaction based on the desired contract interaction, signs it with the canister's private key, and sends it to the EVM network. `contract_interaction` uses the `send_raw_transaction` function to send the transaction. The `submit_result` function in this starter project leverages this function to send the results of processed jobs back to the EVM smart contract.
 
+### Testing with `ic-test`
+
+The project showcases the convenience tool [`ic-test`](https://github.com/wasm-forge/ic-test), which simplifies high-level canister and cross-chain testing. It automatically reads configuration from your `dfx.json` and `foundry.toml` files, then generates a `tests` project with bindings for your canister and EVM contracts. It also generates a sample test file `tests.rs` to help you get started quickly.
+
+#### Installation
+To install the tool:
+```bash
+cargo install ic-test
+```
+
+**Note:** Currently, for the generator to work, you need to make sure the `.dfx` folder was created by `dfx` and if there are any pull dependencies, you need to call the 'pull' command:
+
+```bash
+dfx deps pull
+dfx build
+```
+
+
+#### Regenerating bindings
+If your Candid interfaces change or you update dependencies, you can regenerate the test scaffolding and bindings using:
+```bash
+ic-test update
+```
+
+The tool reads from the stored generator configuration in `ic-test.json`, which is sufficient to fully regenerate the boilerplate code.
+
+Finally, to launch tests, simply run:
+```bash
+cargo test
+```
+
+This makes it easy to write and run high-level integration tests that span both Internet Computer canisters and EVM smart contracts.
+
 ## Use Cases
 
 Examples leveraging the chain fusion starter logic:

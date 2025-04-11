@@ -46,10 +46,8 @@ fn init(arg: InitArg) {
 }
 
 #[ic_cdk::query]
-fn get_evm_address() -> String {
-    read_state(|s| s.canister_evm_address)
-        .expect("evm address should be initialized")
-        .to_string()
+fn get_evm_address() -> Option<String> {
+    read_state(|s| s.canister_evm_address.map(|x| x.to_string()))
 }
 
 // uncomment this if you need to serve stored assets from `storage.rs` via http requests

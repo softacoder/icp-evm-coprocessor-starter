@@ -295,6 +295,7 @@ This makes it easy to write and run high-level integration tests that span both 
 
 Examples leveraging the chain fusion starter logic:
 
+-   [BOLD Autonmous Interest Rate Manager for Liquity v2 Troves](https://github.com/liquity/bold-ir-management)
 -   [On-chain asset and metadata creation for ERC721 NFT contracts](https://github.com/letmejustputthishere/chain-fusion-nft-creator)
 -   [Ethereum Donations Streamer](https://github.com/frederikrothenberger/chain-fusion-donations)
 -   [Recurring Transactions on Ethereum](https://github.com/malteish/ReTransICP)

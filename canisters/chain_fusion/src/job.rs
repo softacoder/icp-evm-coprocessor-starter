@@ -11,7 +11,7 @@ use crate::{
     state::{mutate_state, LogSource},
     Coprocessor,
 };
-
+// here
 pub async fn job(log_source: LogSource, log: Log) {
     mutate_state(|s| s.record_processed_log(log_source.clone()));
     // because we deploy the canister with topics only matching

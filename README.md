@@ -4,25 +4,25 @@
 
 ## Table of Contents
 
--   [Overview](#overview)
-    -   [What is a Coprocessor?](#what-is-a-coprocessor)
-    -   [Why Use ICP as a Coprocessor for Ethereum?](#why-use-icp-as-a-coprocessor-for-ethereum)
--   [Now with `ic-alloy`](#now-with-ic-alloy)
-    -   [Differences from Prior Implementations](#differences-from-prior-implementations)
--   [Getting Started](#getting-started)
-    -   [In the Cloud](#in-the-cloud)
-    -   [Locally](#locally)
-    -   [Manual Setup](#manual-setup)
--   [Architecture](#architecture)
-    -   [EVM Smart Contract](#evm-smart-contract)
-    -   [Chain Fusion Canister](#chain-fusion-canister)
--   [Development](#development)
-    -   [Interacting with the EVM Smart Contract](#interacting-with-the-evm-smart-contract)
-    -   [Leveraging `storage.rs` for Stable Memory](#leveraging-storagers-for-stable-memory)
-    -   [Read from EVM Smart Contracts](#read-from-evm-smart-contracts)
-    -   [Sending Transactions to EVM Smart Contracts](#sending-transactions-to-evm-smart-contracts)
--   [Use Cases](#use-cases)
--   [Additional Resources](#additional-resources)
+- [Overview](#overview)
+  - [What is a Coprocessor?](#what-is-a-coprocessor)
+  - [Why Use ICP as a Coprocessor for Ethereum?](#why-use-icp-as-a-coprocessor-for-ethereum)
+- [Now with `ic-alloy`](#now-with-ic-alloy)
+  - [Differences from Prior Implementations](#differences-from-prior-implementations)
+- [Getting Started](#getting-started)
+  - [In the Cloud](#in-the-cloud)
+  - [Locally](#locally)
+  - [Manual Setup](#manual-setup)
+- [Architecture](#architecture)
+  - [EVM Smart Contract](#evm-smart-contract)
+  - [Chain Fusion Canister](#chain-fusion-canister)
+- [Development](#development)
+  - [Interacting with the EVM Smart Contract](#interacting-with-the-evm-smart-contract)
+  - [Leveraging `storage.rs` for Stable Memory](#leveraging-storagers-for-stable-memory)
+  - [Read from EVM Smart Contracts](#read-from-evm-smart-contracts)
+  - [Sending Transactions to EVM Smart Contracts](#sending-transactions-to-evm-smart-contracts)
+- [Use Cases](#use-cases)
+- [Additional Resources](#additional-resources)
 
 ## Overview
 
@@ -48,17 +48,17 @@ Canister smart contracts on ICP can securely read from EVM smart contracts (usin
 
 Moreover, canister smart contracts have numerous capabilities that can extend smart contract functionality:
 
--   WASM Runtime, which is more efficient than the EVM and allows programming in [Rust, JavaScript, and other traditional languages](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/write/overview#choosing-the-programming-language-for-the-backend).
--   [400 GiB of memory](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/best-practices/storage/) with low storage costs.
--   [Long-running computations](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/maintain/resource-limits/) including [AI inference](https://x.com/dominic_w/status/1770884845570326589).
--   [HTTPS Outcalls](https://internetcomputer.org/docs/current/references/https-outcalls-how-it-works) for interacting with other chains and traditional web services.
--   [Chain-key signatures](https://internetcomputer.org/docs/current/references/t-ecdsa-how-it-works) for signing transactions for other chains, including Ethereum and Bitcoin.
--   [Timers](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/advanced-features/periodic-tasks/) for syncing with EVM events and scheduling tasks.
--   [Unbiasable randomness](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/advanced-features/randomness/) provided by threshold BLS signatures.
--   Ability to [serve web content](https://internetcomputer.org/how-it-works/smart-contracts-serve-the-web/) directly from canisters.
--   The [reverse gas model](https://internetcomputer.org/docs/current/developer-docs/gas-cost/#the-reverse-gas-model) frees end users from paying for every transaction.
--   ~1-2 second [finality](https://internetcomputer.org/how-it-works/consensus/).
--   [Multi-block transactions](https://internetcomputer.org/capabilities/multi-block-transactions/).
+- WASM Runtime, which is more efficient than the EVM and allows programming in [Rust, JavaScript, and other traditional languages](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/write/overview#choosing-the-programming-language-for-the-backend).
+- [400 GiB of memory](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/best-practices/storage/) with low storage costs.
+- [Long-running computations](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/maintain/resource-limits/) including [AI inference](https://x.com/dominic_w/status/1770884845570326589).
+- [HTTPS Outcalls](https://internetcomputer.org/docs/current/references/https-outcalls-how-it-works) for interacting with other chains and traditional web services.
+- [Chain-key signatures](https://internetcomputer.org/docs/current/references/t-ecdsa-how-it-works) for signing transactions for other chains, including Ethereum and Bitcoin.
+- [Timers](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/advanced-features/periodic-tasks/) for syncing with EVM events and scheduling tasks.
+- [Unbiasable randomness](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/advanced-features/randomness/) provided by threshold BLS signatures.
+- Ability to [serve web content](https://internetcomputer.org/how-it-works/smart-contracts-serve-the-web/) directly from canisters.
+- The [reverse gas model](https://internetcomputer.org/docs/current/developer-docs/gas-cost/#the-reverse-gas-model) frees end users from paying for every transaction.
+- ~1-2 second [finality](https://internetcomputer.org/how-it-works/consensus/).
+- [Multi-block transactions](https://internetcomputer.org/capabilities/multi-block-transactions/).
 
 ## Now with `ic-alloy`
 
@@ -66,25 +66,25 @@ The version that talks to the `evm rpc canister` directly can be found in the `e
 
 ### Differences from Prior Implementations
 
--   No retry logic when `max-response-size` is exceeded.
-    -   This means you have less control over the logic to fetch logs.
-        -   For example, when 500 blocks have been produced since you last fetched logs, you will fetch logs for all those 500 blocks. If they don't fit into the `max-response-size`, you will encounter a problem. Even when you set `max-response-size` to the maximum value (2MB), the response might still exceed this limit.
--   Logs/events are not fetched for a range, and you can't provide the block number from which you'd like to start fetching.
-    -   You only fetch from the latest block since deployment. This means you can't fetch logs/events from before the canister was deployed.
--   `ic-alloy` doesn't use the Candid convenience methods provided by the `evm-rpc-canister`, but only the `request` method. This means the requests are only forwarded to a single RPC provider, and you miss out on the 3-out-of-4 consensus that the `evm-rpc-canister` provides with its convenience methods.
--   Topics are now passed in their string representation when initializing the canister, e.g., `"Transfer(address,address,uint256)"`.
--   `coprocess_evm_address` and `filter_addresses` are now separated in the state and must be set separately.
--   You need to provide a `chain_id` explicitly when initializing the canister.
+- No retry logic when `max-response-size` is exceeded.
+  - This means you have less control over the logic to fetch logs.
+    - For example, when 500 blocks have been produced since you last fetched logs, you will fetch logs for all those 500 blocks. If they don't fit into the `max-response-size`, you will encounter a problem. Even when you set `max-response-size` to the maximum value (2MB), the response might still exceed this limit.
+- Logs/events are not fetched for a range, and you can't provide the block number from which you'd like to start fetching.
+  - You only fetch from the latest block since deployment. This means you can't fetch logs/events from before the canister was deployed.
+- `ic-alloy` doesn't use the Candid convenience methods provided by the `evm-rpc-canister`, but only the `request` method. This means the requests are only forwarded to a single RPC provider, and you miss out on the 3-out-of-4 consensus that the `evm-rpc-canister` provides with its convenience methods.
+- Topics are now passed in their string representation when initializing the canister, e.g., `"Transfer(address,address,uint256)"`.
+- `coprocess_evm_address` and `filter_addresses` are now separated in the state and must be set separately.
+- You need to provide a `chain_id` explicitly when initializing the canister.
 
 ## Getting Started
 
 To deploy the project locally, run `./deploy.sh` from the project root. This script will:
 
--   Start `anvil`
--   Start `dfx`
--   Deploy the EVM contract
--   Generate a number of jobs to be processed
--   Deploy the coprocessor canister
+- Start `anvil`
+- Start `dfx`
+- Deploy the EVM contract
+- Generate a number of jobs to be processed
+- Deploy the coprocessor canister
 
 Check the `deploy.sh` script comments for detailed deployment steps.
 
@@ -102,9 +102,9 @@ Ensure Docker and VS Code are installed and running, then click the button below
 
 Ensure the following are installed on your system:
 
--   [Node.js](https://nodejs.org/en/) `>= 21`
--   [Foundry](https://github.com/foundry-rs/foundry)
--   [DFX](https://internetcomputer.org/docs/current/developer-docs/build/install-upgrade-remove) `>= 0.23`
+- [Node.js](https://nodejs.org/en/) `>= 21`
+- [Foundry](https://github.com/foundry-rs/foundry)
+- [DFX](https://internetcomputer.org/docs/current/developer-docs/build/install-upgrade-remove) `>= 0.23`
 
 Run these commands in a new, empty project directory:
 
@@ -117,9 +117,9 @@ cd chain-fusion-starter
 
 This starter project involves multiple canisters working together to process events emitted by an EVM smart contract. The contracts involved are:
 
--   **EVM Smart Contract**: Emits events such as `NewJob` when specific functions are called. It also handles callbacks from the `chain_fusion` canister with the results of the processed jobs.
--   **Chain Fusion Canister (`chain_fusion`)**: Listens to events emitted by the EVM smart contract, processes them, and sends the results back to the EVM smart contract.
--   **EVM RPC Canister**: Facilitates communication between the Internet Computer and EVM-based blockchains by making RPC calls to interact with the EVM smart contract.
+- **EVM Smart Contract**: Emits events such as `NewJob` when specific functions are called. It also handles callbacks from the `chain_fusion` canister with the results of the processed jobs.
+- **Chain Fusion Canister (`chain_fusion`)**: Listens to events emitted by the EVM smart contract, processes them, and sends the results back to the EVM smart contract.
+- **EVM RPC Canister**: Facilitates communication between the Internet Computer and EVM-based blockchains by making RPC calls to interact with the EVM smart contract.
 
 The full flow of how these canisters interact can be found in the following sequence diagram:
 
@@ -248,22 +248,24 @@ If you don't want to use `ic-alloy` but directly interact with the `EVM RPC cani
 
 #### Key Functions:
 
--   **sign_eip1559_transaction**: This function signs a EIP-1559 transaction.
+- **sign_eip1559_transaction**: This function signs a EIP-1559 transaction.
 
--   **erc20_balance_of**: The `erc20_balance_of` function demonstrates how to construct and send a call to an ERC20 contract to query the balance of a specific address. It uses the `eth_call` function to send the call and parse the response. You can refer to the `erc20_balance_of` function in the `eth_call.rs` module to understand how to implement similar read operations for other types of EVM smart contracts.
+- **erc20_balance_of**: The `erc20_balance_of` function demonstrates how to construct and send a call to an ERC20 contract to query the balance of a specific address. It uses the `eth_call` function to send the call and parse the response. You can refer to the `erc20_balance_of` function in the `eth_call.rs` module to understand how to implement similar read operations for other types of EVM smart contracts.
 
--   **send_raw_transaction**: This function sends a raw transaction to an EVM smart contract. It constructs a transaction, signs it with the canister's private key, and sends it to the EVM network.
+- **send_raw_transaction**: This function sends a raw transaction to an EVM smart contract. It constructs a transaction, signs it with the canister's private key, and sends it to the EVM network.
 
--   **transfer_eth**: The `transfer_eth` function demonstrates how to transfer ETH from a canister-owned EVM address to another address. It covers creating a transaction, signing it with the canister's private key, and sending it to the EVM network. `transfer_eth` uses the `send_raw_transaction` function to send the transaction.
+- **transfer_eth**: The `transfer_eth` function demonstrates how to transfer ETH from a canister-owned EVM address to another address. It covers creating a transaction, signing it with the canister's private key, and sending it to the EVM network. `transfer_eth` uses the `send_raw_transaction` function to send the transaction.
 
--   **contract_interaction**: The `contract_interaction` function demonstrates how to interact with arbitrary EVM smart contracts. It constructs a transaction based on the desired contract interaction, signs it with the canister's private key, and sends it to the EVM network. `contract_interaction` uses the `send_raw_transaction` function to send the transaction. The `submit_result` function in this starter project leverages this function to send the results of processed jobs back to the EVM smart contract.
+- **contract_interaction**: The `contract_interaction` function demonstrates how to interact with arbitrary EVM smart contracts. It constructs a transaction based on the desired contract interaction, signs it with the canister's private key, and sends it to the EVM network. `contract_interaction` uses the `send_raw_transaction` function to send the transaction. The `submit_result` function in this starter project leverages this function to send the results of processed jobs back to the EVM smart contract.
 
 ### Testing with `ic-test`
 
 The project showcases the convenience tool [`ic-test`](https://github.com/wasm-forge/ic-test), which simplifies high-level canister and cross-chain testing. It automatically reads configuration from your `dfx.json` and `foundry.toml` files, then generates a `tests` project with bindings for your canister and EVM contracts. It also generates a sample test file `tests.rs` to help you get started quickly.
 
 #### Installation
+
 To install the tool:
+
 ```bash
 cargo install ic-test
 ```
@@ -275,9 +277,10 @@ dfx deps pull
 dfx build
 ```
 
-
 #### Regenerating bindings
+
 If your Candid interfaces change or you update dependencies, you can regenerate the test scaffolding and bindings using:
+
 ```bash
 ic-test update
 ```
@@ -285,6 +288,7 @@ ic-test update
 The tool reads from the stored generator configuration in `ic-test.json`, which is sufficient to fully regenerate the boilerplate code.
 
 Finally, to launch tests, simply run:
+
 ```bash
 cargo test
 ```
@@ -295,30 +299,32 @@ This makes it easy to write and run high-level integration tests that span both 
 
 Examples leveraging the chain fusion starter logic:
 
--   [BOLD Autonmous Interest Rate Manager for Liquity v2 Troves](https://github.com/liquity/bold-ir-management)
--   [On-chain asset and metadata creation for ERC721 NFT contracts](https://github.com/letmejustputthishere/chain-fusion-nft-creator)
--   [Ethereum Donations Streamer](https://github.com/frederikrothenberger/chain-fusion-donations)
--   [Recurring Transactions on Ethereum](https://github.com/malteish/ReTransICP)
--   [BTC Price Oracle for EVM Smart Contracts](https://github.com/letmejustputthishere/chain-fusion-encode-club)
+- [BOLD Autonmous Interest Rate Manager for Liquity v2 Troves](https://github.com/liquity/bold-ir-management)
+- [On-chain asset and metadata creation for ERC721 NFT contracts](https://github.com/letmejustputthishere/chain-fusion-nft-creator)
+- [Ethereum Donations Streamer](https://github.com/frederikrothenberger/chain-fusion-donations)
+- [Recurring Transactions on Ethereum](https://github.com/malteish/ReTransICP)
+- [BTC Price Oracle for EVM Smart Contracts](https://github.com/letmejustputthishere/chain-fusion-encode-club)
 
 Build your own use case and [share it with the community](https://github.com/letmejustputthishere/chain-fusion-starter/discussions/10)!
 
 Some ideas you could explore:
 
--   A referral canister that distributes rewards to users based on their interactions with an EVM smart contract
--   A ckNFT canister that mints an NFT on the ICP when an EVM helper smart contract emits a `ReceivedNft`, similar to the [`EthDepositHelper`](https://github.com/dfinity/ic/blob/master/rs/ethereum/cketh/minter/EthDepositHelper.sol) contract the ckETH minter uses. This could enable users to trade NFTs on the ICP without having to pay gas fees on Ethereum.
--   Decentralized DCA (dollar cost average) service for decentralized exchanges like Uniswap deployed on EVM chains
--   Price oracles for DeFi applications via [exchange rate canister](https://github.com/dfinity/exchange-rate-canister)
--   Prediction market resolution
--   Soulbound NFT metadata and assets stored in a canister
--   An on-chain managed passive index fund (e.g. top 10 ERC20 tokens traded on Uniswap)
--   An on-chain donations stream
+- A referral canister that distributes rewards to users based on their interactions with an EVM smart contract
+- A ckNFT canister that mints an NFT on the ICP when an EVM helper smart contract emits a `ReceivedNft`, similar to the [`EthDepositHelper`](https://github.com/dfinity/ic/blob/master/rs/ethereum/cketh/minter/EthDepositHelper.sol) contract the ckETH minter uses. This could enable users to trade NFTs on the ICP without having to pay gas fees on Ethereum.
+- Decentralized DCA (dollar cost average) service for decentralized exchanges like Uniswap deployed on EVM chains
+- Price oracles for DeFi applications via [exchange rate canister](https://github.com/dfinity/exchange-rate-canister)
+- Prediction market resolution
+- Soulbound NFT metadata and assets stored in a canister
+- An on-chain managed passive index fund (e.g. top 10 ERC20 tokens traded on Uniswap)
+- An on-chain donations stream
 
 ## Additional Resources
 
--   [DappCon24 Workshop](https://www.youtube.com/watch?v=EykvCT5mgrY)
--   [ETHPrague24 Workshop](https://live.ethprague.com/ethprague/watch?session=665833d1036a981493b0bf58)
--   [Chain Fusion Hackathon Workshop](https://youtu.be/6Dq1HxxWWGY?si=KBiqtWVDHCDVM0eA&t=1090)
--   [Using Cast](https://book.getfoundry.sh/reference/cast/)
+- [DappCon24 Workshop](https://www.youtube.com/watch?v=EykvCT5mgrY)
+- [ETHPrague24 Workshop](https://live.ethprague.com/ethprague/watch?session=665833d1036a981493b0bf58)
+- [Chain Fusion Hackathon Workshop](https://youtu.be/6Dq1HxxWWGY?si=KBiqtWVDHCDVM0eA&t=1090)
+- [Using Cast](https://book.getfoundry.sh/reference/cast/)
 
 For more details and discussions, visit the [DFINITY Developer Forum](https://forum.dfinity.org/u/cryptoschindler/summary) or follow [@cryptoschindler on Twitter](https://twitter.com/cryptoschindler).
+
+<!--  -->
